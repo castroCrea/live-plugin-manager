@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -284,6 +288,9 @@ class PluginVm {
         }
         const reqPathKind = checkPath(fullPath);
         if (reqPathKind !== "file") {
+            if (checkPath(fullPath + ".cjs") === "file") {
+                return fullPath + ".cjs";
+            }
             if (checkPath(fullPath + ".js") === "file") {
                 return fullPath + ".js";
             }
@@ -300,6 +307,10 @@ class PluginVm {
     tryResolveAsDirectory(fullPath) {
         if (checkPath(fullPath) !== "directory") {
             return undefined;
+        }
+        const indexCjs = path.join(fullPath, "index.cjs");
+        if (checkPath(indexCjs) === "file") {
+            return indexCjs;
         }
         const indexJs = path.join(fullPath, "index.js");
         if (checkPath(indexJs) === "file") {
@@ -347,6 +358,7 @@ class PluginVm {
             // override env to "unlink" from original process
             const srcEnv = sandboxTemplate.env || global.process.env;
             sandbox.process.env = Object.assign({}, srcEnv); // copy properties
+            sandbox.process.on = (event, callback) => { };
         }
         // create global console
         if (!sandbox.console) {

@@ -1,5 +1,5 @@
 {
-  "name": "live-plugin-manager",
+  "name": "@castrocrea/live-plugin-manager",
   "version": "0.18.1",
   "description": "Install and uninstall any node package at runtime from npm registry",
   "keywords": [
@@ -51,5 +51,8 @@
     "semver": "^7.3.5",
     "tar": "^6.1.11",
     "url-join": "^4.0.1"
+  },
+  "publishConfig": {
+    "@castrocrea:registry": "https://npm.pkg.github.com"
   }
 }

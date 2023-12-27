@@ -7,6 +7,7 @@ import * as httpUtils from "./httpUtils";
 import { PackageInfo } from "./PackageInfo";
 import Debug from "debug";
 const debug = Debug("live-plugin-manager.NpmRegistryClient");
+const BASE_NPM_URL = "https://registry.npmjs.org";
 
 export class NpmRegistryClient {
 	defaultHeaders: httpUtils.Headers;
@@ -33,7 +34,13 @@ export class NpmRegistryClient {
 			throw new Error("Invalid package name");
 		}
 
-		const data = await this.getNpmData(name);
+		let data: NpmData;
+
+		try {
+			data = await this.getNpmData(this.npmUrl, name);
+		} catch (e) { 
+			data = await this.getNpmData(BASE_NPM_URL, name);
+		}
 		versionOrTag = versionOrTag.trim();
 
 		// check if there is a tag (es. latest)
@@ -95,8 +102,8 @@ export class NpmRegistryClient {
 		return pluginDirectory;
 	}
 
-	private async getNpmData(name: string): Promise<NpmData> {
-		const regUrl = urlJoin(this.npmUrl, encodeNpmName(name));
+	private async getNpmData(url: string, name: string): Promise<NpmData> {
+		const regUrl = urlJoin(url, encodeNpmName(name));
 		const headers = this.defaultHeaders;
 		try {
 			const result = await httpUtils.httpJsonGet<NpmData>(regUrl, headers);

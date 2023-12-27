@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -40,6 +44,7 @@ const semVer = __importStar(require("semver"));
 const httpUtils = __importStar(require("./httpUtils"));
 const debug_1 = __importDefault(require("debug"));
 const debug = (0, debug_1.default)("live-plugin-manager.NpmRegistryClient");
+const BASE_NPM_URL = "https://registry.npmjs.org";
 class NpmRegistryClient {
     constructor(npmUrl, config) {
         this.npmUrl = npmUrl;
@@ -61,7 +66,13 @@ class NpmRegistryClient {
             if (typeof name !== "string") {
                 throw new Error("Invalid package name");
             }
-            const data = yield this.getNpmData(name);
+            let data;
+            try {
+                data = yield this.getNpmData(this.npmUrl, name);
+            }
+            catch (e) {
+                data = yield this.getNpmData(BASE_NPM_URL, name);
+            }
             versionOrTag = versionOrTag.trim();
             // check if there is a tag (es. latest)
             const distTags = data["dist-tags"];
@@ -112,9 +123,9 @@ class NpmRegistryClient {
             return pluginDirectory;
         });
     }
-    getNpmData(name) {
+    getNpmData(url, name) {
         return __awaiter(this, void 0, void 0, function* () {
-            const regUrl = urlJoin(this.npmUrl, encodeNpmName(name));
+            const regUrl = urlJoin(url, encodeNpmName(name));
             const headers = this.defaultHeaders;
             try {
                 const result = yield httpUtils.httpJsonGet(regUrl, headers);
