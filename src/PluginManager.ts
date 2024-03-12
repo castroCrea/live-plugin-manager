@@ -2,7 +2,7 @@ import * as fs from "./fileSystem";
 import * as path from "path";
 import {NpmRegistryClient, NpmRegistryConfig} from "./NpmRegistryClient";
 import {PluginVm} from "./PluginVm";
-import {IPluginInfo} from "./PluginInfo";
+import {IPluginInfo, IPluginInfoForList} from "./PluginInfo";
 import * as lockFile from "lockfile";
 import * as semver from "semver";
 import Debug from "debug";
@@ -785,5 +785,54 @@ export class PluginManager {
 			mainFile,
 			dependencies: packageJson.dependencies || {}
 		};
+	}
+
+	/** Plugin information */
+	async getOnlineInfo(name: string, version?: string): Promise<IPluginInfoForList> {
+		await fs.ensureDir(this.options.pluginsPath);
+
+		await this.syncLock();
+		try {
+			return await this.getInfoLockFree(name, version);
+		} finally {
+			await this.syncUnlock();
+		}
+	}
+
+	private async getInfoLockFree(name: string, version?: string): Promise<IPluginInfoForList> {
+		if (!this.isValidPluginName(name)) {
+			throw new Error(`Invalid plugin name '${name}'`);
+		}
+
+		version = this.validatePluginVersion(version);
+
+		if (version && this.githubRegistry.isGithubRepo(version)) {
+			return this.getInfoFromGithubLockFree(version);
+		}
+
+		return this.getInfoFromNpmLockFreeCache(name, version);
+	}
+
+	private async getInfoFromGithubLockFree(repository: string): Promise<IPluginInfoForList> {
+		const registryInfo = await this.githubRegistry.get(repository);
+
+		return {
+			name: registryInfo.name,
+			version: registryInfo.version
+		}
+	}
+
+	/** get from npm or from cache if already available */
+	private async getInfoFromNpmLockFreeCache(name: string, version = NPM_LATEST_TAG): Promise<IPluginInfoForList> {
+		if (!this.isValidPluginName(name)) {
+			throw new Error(`Invalid plugin name '${name}'`);
+		}
+
+		const registryInfo = await this.npmRegistry.get(name, version);
+
+		return {
+			name: registryInfo.name,
+			version: registryInfo.version
+		}
 	}
 }

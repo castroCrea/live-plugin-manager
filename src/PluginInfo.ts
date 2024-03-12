@@ -5,3 +5,8 @@ export interface IPluginInfo {
 	readonly version: string;
 	readonly dependencies: { [name: string]: string };
 }
+
+export interface IPluginInfoForList {
+	readonly name: string;
+	readonly version: string;
+}

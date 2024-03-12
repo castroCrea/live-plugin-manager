@@ -688,6 +688,53 @@ class PluginManager {
             };
         });
     }
+    /** Plugin information */
+    getOnlineInfo(name, version) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield fs.ensureDir(this.options.pluginsPath);
+            yield this.syncLock();
+            try {
+                return yield this.getInfoLockFree(name, version);
+            }
+            finally {
+                yield this.syncUnlock();
+            }
+        });
+    }
+    getInfoLockFree(name, version) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.isValidPluginName(name)) {
+                throw new Error(`Invalid plugin name '${name}'`);
+            }
+            version = this.validatePluginVersion(version);
+            if (version && this.githubRegistry.isGithubRepo(version)) {
+                return this.getInfoFromGithubLockFree(version);
+            }
+            return this.getInfoFromNpmLockFreeCache(name, version);
+        });
+    }
+    getInfoFromGithubLockFree(repository) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const registryInfo = yield this.githubRegistry.get(repository);
+            return {
+                name: registryInfo.name,
+                version: registryInfo.version
+            };
+        });
+    }
+    /** get from npm or from cache if already available */
+    getInfoFromNpmLockFreeCache(name, version = NPM_LATEST_TAG) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.isValidPluginName(name)) {
+                throw new Error(`Invalid plugin name '${name}'`);
+            }
+            const registryInfo = yield this.npmRegistry.get(name, version);
+            return {
+                name: registryInfo.name,
+                version: registryInfo.version
+            };
+        });
+    }
 }
 exports.PluginManager = PluginManager;
 //# sourceMappingURL=PluginManager.js.map

@@ -7,3 +7,7 @@ export interface IPluginInfo {
         [name: string]: string;
     };
 }
+export interface IPluginInfoForList {
+    readonly name: string;
+    readonly version: string;
+}

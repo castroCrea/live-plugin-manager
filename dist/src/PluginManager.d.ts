@@ -2,7 +2,7 @@
 /// <reference types="node" />
 /// <reference types="node" />
 import { NpmRegistryConfig } from "./NpmRegistryClient";
-import { IPluginInfo } from "./PluginInfo";
+import { IPluginInfo, IPluginInfoForList } from "./PluginInfo";
 import { GithubAuth } from "./GithubRegistryClient";
 import { BitbucketAuth } from "./BitbucketRegistryClient";
 import { PackageInfo } from "./PackageInfo";
@@ -105,5 +105,11 @@ export declare class PluginManager {
     private syncUnlock;
     private shouldIgnore;
     private createPluginInfo;
+    /** Plugin information */
+    getOnlineInfo(name: string, version?: string): Promise<IPluginInfoForList>;
+    private getInfoLockFree;
+    private getInfoFromGithubLockFree;
+    /** get from npm or from cache if already available */
+    private getInfoFromNpmLockFreeCache;
 }
 export {};
