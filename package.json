@@ -1,6 +1,6 @@
 {
   "name": "@castrocrea/live-plugin-manager",
-  "version": "0.18.5",
+  "version": "0.18.6",
   "description": "Install and uninstall any node package at runtime from npm registry",
   "keywords": [
     "plugin",
