@@ -1,5 +1,5 @@
 {
-  "name": "@castrocrea/live-plugin-manager",
+  "name": "@moonjot/live-plugin-manager",
   "version": "0.20.0",
   "description": "Install and uninstall any node package at runtime from npm registry",
   "keywords": [
@@ -12,6 +12,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "pub": "yarn build && yarn publish --access public",
     "src-build-w": "tsc -w",
     "develop": "npm run src-build-w",
     "pretest": "tsc -p test",
@@ -44,13 +45,6 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@types/debug": "^4.1.12",
-    "@types/fs-extra": "^9.0.13",
-    "@types/lockfile": "^1.0.4",
-    "@types/node-fetch": "^2.6.11",
-    "@types/semver": "^7.5.8",
-    "@types/tar": "^6.1.12",
-    "@types/url-join": "^4.0.3",
     "debug": "^4.3.4",
     "fs-extra": "^10.1.0",
     "lockfile": "^1.0.4",
@@ -61,6 +55,6 @@
     "url-join": "^4.0.1"
   },
   "publishConfig": {
-    "@castrocrea:registry": "https://npm.pkg.github.com"
+    "@moonjot:registry": "https://registry.npmjs.org/"
   }
 }
